@@ -1,0 +1,18 @@
+# Last update: None
+
+# Code coverage testing for Python
+coverage==7.0.5
+
+# Python package that generates fake data for you
+Faker==16.6.0
+
+# Fixtures replacement based on thoughtbot’s factory_bot
+factory-boy==3.2.1
+
+# Use this package if you need to fake AWS services
+# Moto is a library that allows your tests to easily mock out AWS Services
+# moto==4.0.6
+
+# Use this package if you need to fake responses from any API
+# Library for mocking out the requests Python library
+# responses==0.21.0

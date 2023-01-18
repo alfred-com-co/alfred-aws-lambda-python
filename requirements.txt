@@ -1,0 +1,13 @@
+# Last update: None
+
+# Use this package if you need your Lambda function to be deployed from a Docker image
+# AWS Lambda Python Runtime Interface Client
+# awslambdaric==2.0.4
+
+# Use this package if you need to interact with AWS services
+# AWS Software Development Kit for python
+# boto3==1.26.0
+
+# Use this package if you need to request any API
+# Simple, yet elegant, HTTP library.
+# requests==2.28.0
