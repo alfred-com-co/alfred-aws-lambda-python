@@ -1,0 +1,44 @@
+###############
+# BUILD STAGE #
+###############
+
+FROM python:3.10.4-slim-buster AS builder
+LABEL Maintainer="Alfred"
+
+# Set some environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# System dependencies
+RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
+    gcc \
+    build-essential \
+ && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY requirements.txt .
+COPY requirements-test.txt .
+RUN pip install -r requirements.txt
+RUN pip install -r requirements-test.txt
+
+###############
+# FINAL STAGE #
+###############
+
+FROM python:3.10.4-slim-buster AS runner
+LABEL Maintainer="Alfred"
+
+# Application dependencies
+RUN apt-get update --yes --quiet && rm -rf /var/lib/apt/lists/*
+
+# Copy pip install results from builder image
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+
+# Setup workdir
+RUN mkdir /project
+WORKDIR /project
+
+# Copy the project files
+COPY .coveragerc .coveragerc
+COPY src /project
+COPY tests tests

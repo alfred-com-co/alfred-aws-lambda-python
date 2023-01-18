@@ -1,0 +1,15 @@
+**/.git
+**/.gitignore
+**/.vscode
+**/coverage
+**/.env
+**/.aws
+**/.ssh
+.github
+Dockerfile
+README.md
+LICENSE
+docker-compose.yml
+**/.DS_Store
+**/venv
+**/env
