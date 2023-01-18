@@ -38,7 +38,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-htmlcov/
+htmlcov/*
 .tox/
 .nox/
 .coverage
@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom rules
+.idea/
+.vscode/
+.oauth.key
+secrets/
+scratch/
+static/
+
+# keep htmlcov for reports
+!htmlcov/.keep
