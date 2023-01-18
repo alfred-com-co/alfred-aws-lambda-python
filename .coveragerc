@@ -1,0 +1,7 @@
+[run]
+source = .
+omit =
+    */htmlcov/*
+    */test_*_.py
+    */tests/*
+    *__init__.py*
