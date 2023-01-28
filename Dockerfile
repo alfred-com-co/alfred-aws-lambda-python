@@ -19,8 +19,6 @@ ARG FUNCTION_DIR
 RUN mkdir -p ${FUNCTION_DIR}
 
 # Copy function code
-COPY src/bigquery ${FUNCTION_DIR}/bigquery
-COPY src/snow ${FUNCTION_DIR}/snow
 COPY src/lambda_function.py ${FUNCTION_DIR}/lambda_function.py
 
 # Install the runtime interface client
