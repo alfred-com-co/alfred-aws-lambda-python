@@ -2,7 +2,7 @@
 # BUILD STAGE #
 ###############
 
-FROM python:3.10.4-slim-buster AS builder
+FROM python:3.10.10-slim-bullseye AS builder
 LABEL Maintainer="Alfred"
 
 # Set some environment variables
@@ -25,7 +25,7 @@ RUN pip install -r requirements-test.txt
 # FINAL STAGE #
 ###############
 
-FROM python:3.10.4-slim-buster AS runner
+FROM python:3.10.10-slim-bullseye AS runner
 LABEL Maintainer="Alfred"
 
 # Application dependencies
