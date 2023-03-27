@@ -13,6 +13,9 @@ Use this template for any serverless project on AWS Lambda
 
 ```
 .
+├── .github
+│   └── workflows
+│       └── black.yml
 ├── htmlcov
 │   └── .keep
 ├── src
@@ -112,6 +115,13 @@ architecture of the function.
 - Lambda uses POSIX file permissions, so you may need to set permissions for the 
 deployment package folder before you create the .zip file archive.
 
+You can integrate some `GitHub` actions flows that are responsible for deploying the `.zip` 
+file and creating a new version of the lambda with the file content:
+
+```bash
+git merge origin/zip_deploy
+```
+
 #### Docker image based Lambda function 🐋
 
 You can push your container images to an [Amazon ECR](https://docs.aws.amazon.com/ecr/?id=docs_gateway) 
@@ -143,6 +153,13 @@ docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<my-repository>:<tag
 
 4. [Create](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-images.html#configuration-images-create) 
 the Lambda function or update the function code to deploy the image to an existing function.
+
+You can integrate some `GitHub` actions flows that are responsible for deploying the 
+docker image and creating a new version of the lambda with the file content:
+
+```bash
+git merge origin/docker_deploy
+```
 
 ## Authors ✍️
 
