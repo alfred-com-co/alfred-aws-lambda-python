@@ -1,0 +1,43 @@
+name: "Dev Delivery"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  set-parameters:
+    name: set-parameters
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.app_params.outputs.environment }}
+      registry: ${{ steps.app_params.outputs.registry }}
+      lambda_name: ${{ steps.app_params.outputs.lambda_name }}
+      lambda_name_path: ${{ steps.app_params.outputs.lambda_name_path }}
+      lambda_bucket: ${{ steps.app_params.outputs.lambda_bucket }}
+      iam_role: ${{ steps.app_params.outputs.iam_role }}
+      commit_sha: ${{ steps.app_params.outputs.commit_sha }}
+    steps:
+      - name: Set app parameters
+        id: app_params
+        run: |
+          echo "environment=dev" >> ${GITHUB_OUTPUT}
+          echo "lambda_name=lambda-function-name" >> ${GITHUB_OUTPUT}
+          echo "lambda_name_path=lambda-function-path" >> ${GITHUB_OUTPUT}
+          echo "lambda_bucket=alfred-lambda-src" >> ${GITHUB_OUTPUT}
+          echo "registry=617084975215.dkr.ecr.us-east-1.amazonaws.com" >> ${GITHUB_OUTPUT}
+          echo "iam_role=arn:aws:iam::617084975215:role/githubactions-alfred-dev" >> ${GITHUB_OUTPUT}
+          echo "commit_sha=${GITHUB_SHA::7}" >> ${GITHUB_OUTPUT}
+
+  delivery:
+    needs:
+      - set-parameters
+    uses: "./.github/workflows/delivery.yml"
+    with:
+      LAMBDA_NAME: ${{ needs.set-parameters.outputs.lambda_name }}-${{ needs.set-parameters.outputs.environment }}
+      LAMBDA_BUCKET: ${{ needs.set-parameters.outputs.lambda_bucket }}-${{ needs.set-parameters.outputs.environment }}
+      IAM_ROLE: ${{ needs.set-parameters.outputs.iam_role }}
+      IMAGE_URI: ${{ needs.set-parameters.outputs.registry }}/${{ needs.set-parameters.outputs.lambda_name }}-${{ needs.set-parameters.outputs.environment }}:${{ needs.set-parameters.outputs.commit_sha }}
+      PARAMETERS: /${{ needs.set-parameters.outputs.environment }}/lambda/${{ needs.set-parameters.outputs.lambda_name_path }}/parameters
+    secrets:
+      GITHUBACTIONS_API_TOKEN: ${{ secrets.GITHUBACTIONS_API_TOKEN }}

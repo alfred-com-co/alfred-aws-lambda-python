@@ -1,0 +1,89 @@
+
+name: Lambda Delivery
+on: 
+  workflow_call:
+    inputs:
+      LAMBDA_NAME:
+        type: string
+        required: true
+      LAMBDA_BUCKET:
+        type: string
+        required: true
+      IAM_ROLE:
+        type: string
+        required: true
+      IMAGE_URI:
+        type: string
+        required: true
+      PARAMETERS:
+        type: string
+        required: true
+    secrets:
+      GITHUBACTIONS_API_TOKEN:
+        description: API token to get Actions repo
+        required: true
+
+env:
+  AWS_DEFAULT_OUTPUT: "json"
+  AWS_REGION: "us-east-1"
+  PROJECT_NAME: ${{ inputs.PROJECT_NAME }}
+  ECR_REGISTRY: ${{ inputs.REGISTRY }}
+
+jobs:
+  deploy:
+    name: build-deploy-artifact
+    runs-on: ubuntu-latest
+    env: 
+      LAMBDA_BUCKET: ${{ inputs.LAMBDA_BUCKET }}
+      LAMBDA_NAME: ${{ inputs.LAMBDA_NAME }}
+      IMAGE_URI: ${{ inputs.IMAGE_URI }}
+      IAM_ROLE: ${{ inputs.IAM_ROLE }}
+      PARAMETERS: ${{ inputs.PARAMETERS }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.IAM_ROLE }}
+          role-session-name: githubactions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: v0.9.1
+
+      - name: Build and push to local registry
+        id: build-push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_URI }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Checkout GitHub Actions Repo
+        uses: actions/checkout@v3
+        with:
+          repository: alfred-com-co/alfred-githubactions
+          ref: v1
+          token: ${{ secrets.GITHUBACTIONS_API_TOKEN }}
+          path: actions
+
+      - name: Deploy Lambda
+        uses: ./actions/ga-deploy-lambda
+        with:
+          function_name: ${{ env.LAMBDA_NAME }}
+          parameters: ${{ env.PARAMETERS }}
+          image_uri: ${{ env.IMAGE_URI }}
