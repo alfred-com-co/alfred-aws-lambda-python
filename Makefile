@@ -1,7 +1,7 @@
 setup-deployment-flow:
 	test -n "$(lambda)"
-	find ./ -type f -exec perl -pi -e 's/show-database/$(lambda)/g' *.* {} \;
-	find ./ -type f -exec perl -pi -e 's/show-database/$(lambda)/g' *.* {} \;
+	find ./ -type f -exec perl -pi -e 's/lambda-function-name/$(lambda)/g' *.* {} \;
+	find ./ -type f -exec perl -pi -e 's/lambda-function-path/$(lambda)/g' *.* {} \;
 
 build-and-start:
 	docker compose up --build -d
