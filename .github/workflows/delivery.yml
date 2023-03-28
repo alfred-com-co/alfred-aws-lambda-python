@@ -1,0 +1,78 @@
+name: Lambda Delivery
+on:
+  workflow_call:
+    inputs:
+      LAMBDA_NAME:
+        type: string
+        required: true
+      IAM_ROLE:
+        type: string
+        required: true
+      S3_BUCKET:
+        type: string
+        required: true
+      S3_BUCKET_KEY:
+        type: string
+        required: true
+      PARAMETERS:
+        type: string
+        required: true
+    secrets:
+      GITHUBACTIONS_API_TOKEN:
+        description: API token to get Actions repo
+        required: true
+
+env:
+  AWS_DEFAULT_OUTPUT: "json"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  deploy:
+    name: build-deploy-artifact
+    runs-on: ubuntu-latest
+    env:
+      LAMBDA_NAME: ${{ inputs.LAMBDA_NAME }}
+      IAM_ROLE: ${{ inputs.IAM_ROLE }}
+      S3_BUCKET: ${{ inputs.S3_BUCKET }}
+      S3_BUCKET_KEY: ${{ inputs.S3_BUCKET_KEY }}
+      PARAMETERS: ${{ inputs.PARAMETERS }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.IAM_ROLE }}
+          role-session-name: githubactions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Build package
+        id: build-package
+        run: |
+          cd src && zip -r ${S3_BUCKET_KEY} *
+
+      - name: Upload package to S3
+        id: upload-to-s3
+        run: |
+          cd src && aws s3 cp --region ${AWS_REGION} ${S3_BUCKET_KEY} "s3://${S3_BUCKET}/${S3_BUCKET_KEY}"
+
+      - name: Checkout GitHub Actions Repo
+        uses: actions/checkout@v3
+        with:
+          repository: alfred-com-co/alfred-githubactions
+          ref: v1
+          token: ${{ secrets.GITHUBACTIONS_API_TOKEN }}
+          path: actions
+
+      - name: Deploy Lambda
+        uses: ./actions/ga-deploy-lambda
+        with:
+          function_name: ${{ env.LAMBDA_NAME }}
+          s3_bucket: ${{ env.S3_BUCKET }}
+          s3_bucket_key: ${{ env.S3_BUCKET_KEY }}
+          parameters: ${{ env.PARAMETERS }}

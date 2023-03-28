@@ -1,0 +1,39 @@
+name: "Prod Delivery"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-parameters:
+    name: set-parameters
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.app_params.outputs.environment }}
+      lambda_name: ${{ steps.app_params.outputs.lambda_name }}
+      lambda_name_path: ${{ steps.app_params.outputs.lambda_name_path }}
+      lambda_bucket: ${{ steps.app_params.outputs.lambda_bucket }}
+      iam_role: ${{ steps.app_params.outputs.iam_role }}
+      commit_sha: ${{ steps.app_params.outputs.commit_sha }}
+    steps:
+      - name: Set app parameters
+        id: app_params
+        run: |
+          echo "::set-output name=environment::prod"
+          echo "::set-output name=lambda_name::lambda-function-name"
+          echo "::set-output name=lambda_name_path::lambda-function-path"
+          echo "::set-output name=lambda_bucket::alfred-lambda-src"
+          echo "::set-output name=iam_role::arn:aws:iam::739570119403:role/githubactions-alfred-prod"
+          echo "::set-output name=commit_sha::${GITHUB_SHA::7}"
+
+  delivery:
+    needs:
+      - set-parameters
+    uses: "./.github/workflows/delivery.yml"
+    with:
+      LAMBDA_NAME: ${{ needs.set-parameters.outputs.lambda_name }}-${{ needs.set-parameters.outputs.environment }}
+      IAM_ROLE: ${{ needs.set-parameters.outputs.iam_role }}
+      S3_BUCKET: ${{ needs.set-parameters.outputs.lambda_bucket }}-${{ needs.set-parameters.outputs.environment }}
+      S3_BUCKET_KEY: ${{ needs.set-parameters.outputs.commit_sha }}.zip
+      PARAMETERS: /${{ needs.set-parameters.outputs.environment }}/lambda/${{ needs.set-parameters.outputs.lambda_name_path }}/parameters
+    secrets:
+      GITHUBACTIONS_API_TOKEN: ${{ secrets.GITHUBACTIONS_API_TOKEN }}
