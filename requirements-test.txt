@@ -1,11 +1,11 @@
-# Last update: None
+# Last update: Upgrade moto to 4.1.11
 
 # Code coverage testing for Python
 coverage==7.0.5
 
 # Use this package if you need to fake information from your models or data structures.
 # Python package that generates fake data for you.
-# Faker==18.3.1
+# Faker==18.10.1
 
 # Use this package if you need to fake information from your models or data structures.
 # Fixtures replacement based on thoughtbot’s factory_bot.
@@ -13,7 +13,7 @@ coverage==7.0.5
 
 # Use this package if you need to fake AWS services.
 # Moto is a library that allows your tests to easily mock out AWS Services.
-# moto==4.1.6
+# moto==4.1.11
 
 # Use this package if you need to fake responses from any API.
 # Library for mocking out the requests Python library.
