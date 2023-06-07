@@ -79,7 +79,7 @@ The project has a Makefile with abbreviations for useful project commands, if yo
 
 ## How to deploy 🚀
 
-This repository has GitHub actions configuration files. When a new commit is pushed to 
+This repository has GitHub Actions configuration files. When a new commit is pushed to 
 the main branch, a new version of the Lambda function will automatically be deployed to 
 the development environment.
 
@@ -97,6 +97,9 @@ make lambda=<function-name> setup-deployment-flow
 If you want to deploy a new version of the Lambda function in the production environment 
 you can do it by going to the GitHub repository and within the actions tab you can 
 trigger the deployment flow to production.
+
+> For GitHub Actions flows to be able to run, you must `enable` this option in the `settings` 
+> tab of your repository
 
 ## Authors ✍️
 
